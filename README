@@ -1,0 +1,6 @@
+This project implements an xBase file format reader aimed at the dBase III 
+format in the D programming language. A description of the format is here:
+http://www.clicketyclick.dk/databases/xbase/format/index.html
+
+The ability to read .dbf files remains useful as it remains a popular compatibility
+format and is used as part of other formats, such as Shapefiles.
