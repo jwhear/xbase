@@ -4,3 +4,24 @@ http://www.clicketyclick.dk/databases/xbase/format/index.html
 
 The ability to read .dbf files remains useful as it remains a popular compatibility
 format and is used as part of other formats, such as Shapefiles.
+
+Reading files:
+----------------------------------
+import std.stdio : writeln, writefln;
+import std.stream;
+import xbase;
+
+void main(string[] args)
+{
+    // Read each file passed in
+    foreach (filepath; args[1..$])
+    {
+        auto db = xBaseDatabase.read(new File(filepath));
+        
+        writefln("%s contains %s records.", filepath, db.numRecords);
+        writeln("Fields:");
+        foreach (col; db.columns)
+            writefln("\t%s (%s:%s)", col.name, col.type, col.length);
+    }
+}
+----------------------------------

@@ -12,22 +12,22 @@ class xBaseUnsupportedFormatException : Exception {
 
 ///
 enum xBaseDataType : char {
-    Binary 		= 'B',
-	Character   = 'C',
-	Date 	     = 'D',
-	Numeric	 = 'N',
-	Logical	 = 'L',
-	Memo 	     = 'M',
-	Timestamp   = '@',
-	Long 	     = 'l',
-	Autoincrement = '+',
-	Float	     = 'F',
-	Double	     = 'O',
-	OLE         = 'G'
+    Binary 		    = 'B',
+	Character       = 'C',
+	Date 	        = 'D',
+	Numeric	        = 'N',
+	Logical	        = 'L',
+	Memo 	        = 'M',
+	Timestamp       = '@',
+	Long 	        = 'l',
+	Autoincrement   = '+',
+	Float	        = 'F',
+	Double	        = 'O',
+	OLE             = 'G'
 }
 
 /**
- * The header field opens every xBase database.
+ * The header structure begins every xBase database.
  */
 align(1) 
 struct xBaseHeader {
@@ -135,6 +135,7 @@ auto data = xBaseDatabase.read(new File("myfile.dbf"));
             stream.read(row._deleteFlag);
             
             // Read in the data for each field in the row
+            row.values = new string[](ret.columns.length);
             foreach (column_index, val; row.data)
             {
                 val.length = ret.columns[column_index].length;
@@ -151,7 +152,35 @@ auto data = xBaseDatabase.read(new File("myfile.dbf"));
      */
     void write(OutputStream stream)
     {
-         
+        assert(header.numRecords == records.length);
+
+        header.headerLength = cast(ushort)(header.sizeof + 
+                                    (columns.length * xBaseFieldDescriptor.sizeof) +
+                                    1 /* terminator */ );
+        header.recordLength = 1;
+        foreach (col; columns)
+            header.recordLength += col.length;
+
+        stream.writeExact(&header, header.sizeof);
+
+        // write the field descriptor array
+        foreach (col; columns)
+            s.writeExact(&col, col.sizeof);
+
+        s.write('\r');  // terminate the array
+
+        // write the records
+        foreach (row; records)
+        {
+            s.write(row.isValid);
+            foreach (c, field; row.data)
+            {
+                assert(columns[c].length <= field.length);
+                s.writeExact(field.ptr, columns[c].length);
+            }
+        }
+
+        s.write(cast(ubyte)26);     // 1Ah
     }
     
 }
