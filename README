@@ -1,4 +1,4 @@
-This project implements an xBase file format reader aimed at the dBase III 
+This project implements an xBase file format reader aimed at the dBase III
 format in the D programming language. A description of the format is here:
 http://www.clicketyclick.dk/databases/xbase/format/index.html
 
@@ -14,11 +14,11 @@ import xbase;
 void main(string[] args)
 {
     // Read each file passed in
-    foreach (filepath; args[1..$])
+    foreach (filepath; args[1 .. $])
     {
         auto db = xBaseDatabase.read(new File(filepath));
-        
-        writefln("%s contains %s records.", filepath, db.numRecords);
+
+        writefln("%s contains %s records.", filepath, db.header.numRecords);
         writeln("Fields:");
         foreach (col; db.columns)
             writefln("\t%s (%s:%s)", col.name, col.type, col.length);
